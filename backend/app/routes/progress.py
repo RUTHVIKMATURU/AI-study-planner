@@ -54,7 +54,15 @@ async def get_progress(user=Depends(get_current_user)):
 
     plan = await db.study_plans.find_one({"user_id": uid})
     if not plan:
-        return {"total_tasks": 0, "completed_tasks": 0, "completion_rate": 0, "streak": 0}
+        # Return empty stats instead of 404
+        return {
+            "total_tasks": 0,
+            "completed_tasks": 0,
+            "completion_rate": 0.0,
+            "streak": 0,
+            "exam_readiness": {},
+            "weak_alerts": [],
+        }
 
     all_tasks = [t for day in plan.get("weekly_plan", []) for t in day.get("tasks", [])]
     total = len(all_tasks)

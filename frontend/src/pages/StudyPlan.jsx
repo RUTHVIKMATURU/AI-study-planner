@@ -63,7 +63,8 @@ export default function StudyPlan() {
       setAllSubjects([...new Set(data.weekly_plan.flatMap(d => d.tasks.map(t => t.subject)))])
       toast.success(`Plan generated via ${data.generated_by === 'ai' ? '✨ Gemini AI' : '⚙️ Smart Rules'}`)
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Failed to generate plan')
+      const msg = err.response?.data?.detail || 'Failed to generate plan'
+      toast.error(msg)
     } finally { setGenerating(false) }
   }
 
@@ -81,7 +82,7 @@ export default function StudyPlan() {
 
   const reschedule = async (date) => {
     try {
-      await api.post(`/planner/reschedule?missed_date=${date}`)
+      await api.post('/planner/reschedule', null, { params: { missed_date: date } })
       toast.success('Missed tasks rescheduled')
       fetchPlan()
     } catch { toast.error('Reschedule failed') }

@@ -52,3 +52,10 @@ async def get_analysis(user=Depends(get_current_user)):
     async for doc in cursor:
         marks_list.append(serialize(doc))
     return analyze_marks(marks_list)
+
+@router.delete("/{mark_id}", status_code=204)
+async def delete_mark(mark_id: str, user=Depends(get_current_user)):
+    db = get_db()
+    result = await db.marks.delete_one({"_id": ObjectId(mark_id), "user_id": ObjectId(user["id"])})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Mark not found")
