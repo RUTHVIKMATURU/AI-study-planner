@@ -9,7 +9,7 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "gemini-1.5-flash-001"  # ✅ FIXED MODEL
+MODEL_NAME = "gemini-2.5-flash"
 
 client = None
 if settings.gemini_api_key:
