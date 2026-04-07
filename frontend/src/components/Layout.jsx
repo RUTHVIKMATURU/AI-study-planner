@@ -12,6 +12,7 @@ const nav = [
   { to: '/plan', label: 'Study Plan', icon: MdCalendarToday },
   { to: '/progress', label: 'Progress', icon: MdTrendingUp },
   { to: '/quiz', label: 'Smart Quiz', icon: MdQuiz },
+  { to: '/nndl', label: 'AI NNDL', icon: MdAutoAwesome },
 ]
 
 export default function Layout() {

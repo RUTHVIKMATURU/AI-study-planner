@@ -9,7 +9,7 @@ import Marks from './pages/Marks'
 import StudyPlan from './pages/StudyPlan'
 import Progress from './pages/Progress'
 import Quiz from './pages/Quiz'
-
+import NNDLDashboard from './pages/NNDLDashboard'
 function PrivateRoute({ children }) {
   const token = useAuthStore((s) => s.token)
   return token ? children : <Navigate to="/login" replace />
@@ -34,6 +34,7 @@ export default function App() {
         <Route path="plan" element={<StudyPlan />} />
         <Route path="progress" element={<Progress />} />
         <Route path="quiz" element={<Quiz />} />
+        <Route path="nndl" element={<NNDLDashboard />} />
       </Route>
     </Routes>
   )
