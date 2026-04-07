@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import useAuthStore from '../store/useAuthStore'
 import { MdAutoAwesome } from 'react-icons/md'
 
-const BRANCHES = ['CSE', 'ECE', 'EEE', 'ME', 'CE', 'IT']
+const BRANCHES = ['CSE', 'CSE (AI & ML)', 'CSE (Data Science)', 'CSE (Cyber Security)', 'CSE (IoT)', 'AI & DS', 'CSBS', 'IT', 'ECE', 'EEE', 'EIE', 'MECH', 'CIVIL', 'AE']
 
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '', branch: 'CSE', semester: 1 })

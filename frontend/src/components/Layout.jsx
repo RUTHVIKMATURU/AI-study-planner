@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/useAuthStore'
 import {
   MdDashboard, MdMenuBook, MdBarChart, MdCalendarToday,
-  MdTrendingUp, MdLogout, MdAutoAwesome,
+  MdTrendingUp, MdLogout, MdAutoAwesome, MdQuiz,
 } from 'react-icons/md'
 
 const nav = [
@@ -11,6 +11,7 @@ const nav = [
   { to: '/marks', label: 'Marks', icon: MdBarChart },
   { to: '/plan', label: 'Study Plan', icon: MdCalendarToday },
   { to: '/progress', label: 'Progress', icon: MdTrendingUp },
+  { to: '/quiz', label: 'Smart Quiz', icon: MdQuiz },
 ]
 
 export default function Layout() {

@@ -17,7 +17,7 @@ async def connect_db():
         client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
         try:
             await client.admin.command("ping")
-            print("✅ Connected to MongoDB Atlas")
+            print("✅ Connected to MongoDB")
         except Exception as e:
             print(f"⚠️  MongoDB connection failed ({e}) — falling back to in-memory mock")
             from mongomock_motor import AsyncMongoMockClient

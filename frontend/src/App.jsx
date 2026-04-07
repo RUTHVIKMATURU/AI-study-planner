@@ -8,6 +8,7 @@ import Subjects from './pages/Subjects'
 import Marks from './pages/Marks'
 import StudyPlan from './pages/StudyPlan'
 import Progress from './pages/Progress'
+import Quiz from './pages/Quiz'
 
 function PrivateRoute({ children }) {
   const token = useAuthStore((s) => s.token)
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="marks" element={<Marks />} />
         <Route path="plan" element={<StudyPlan />} />
         <Route path="progress" element={<Progress />} />
+        <Route path="quiz" element={<Quiz />} />
       </Route>
     </Routes>
   )

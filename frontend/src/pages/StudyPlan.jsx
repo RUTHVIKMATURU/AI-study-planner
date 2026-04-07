@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import api from '../services/api'
 import {
@@ -40,6 +41,8 @@ export default function StudyPlan() {
   const [selectedDay, setSelectedDay] = useState(null)
   const [allSubjects, setAllSubjects] = useState([])
   const [view, setView]               = useState('day') // 'day' | 'week'
+  const [showQuizPrompt, setShowQuizPrompt] = useState(false)
+  const navigate = useNavigate()
 
   const fetchPlan = async () => {
     setLoading(true)
@@ -77,7 +80,18 @@ export default function StudyPlan() {
       })
       task.completed = !task.completed
       setPlan({ ...plan })
+      
+      // Auto trigger quiz prompt if everything is complete
+      if (task.completed) {
+         const allDone = day.tasks.every(t => t.completed)
+         if (allDone && day.tasks.length > 0) setShowQuizPrompt(true)
+      }
     } catch { toast.error('Failed to update task') }
+  }
+
+  const startQuiz = () => {
+    const topics = currentDay?.tasks?.map(t => t.topic).join(',') || ''
+    navigate(`/quiz?topics=${encodeURIComponent(topics)}`)
   }
 
   const reschedule = async (date) => {
@@ -298,6 +312,25 @@ export default function StudyPlan() {
                 </div>
               )}
             </>
+          )}
+
+          {showQuizPrompt && currentDay && (
+            <div className="fixed inset-0 !m-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+              <div className="bg-surface border border-border rounded-xl p-6 max-w-md w-full shadow-2xl relative">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-tr from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                    <MdCheckCircle className="text-white text-3xl" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white">All Tasks Completed!</h3>
+                  <p className="text-gray-300">You've finished everything planned for {currentDay.day_label}. Do you want to take a quick AI-generated smart quiz based on today's topics to lock in your knowledge?</p>
+                  
+                  <div className="pt-4 flex w-full gap-3">
+                    <button onClick={() => setShowQuizPrompt(false)} className="btn-secondary flex-1 py-3">Not Now</button>
+                    <button onClick={startQuiz} className="btn-primary flex-1 py-3 bg-gradient-to-r from-emerald-500 to-green-500 border-none">Take Quiz</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </>
       )}

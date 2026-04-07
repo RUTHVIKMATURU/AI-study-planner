@@ -151,3 +151,58 @@ def reschedule_missed_tasks(plan: Dict, missed_date: str) -> Dict:
         day["total_hours"] = round(sum(t["duration_minutes"] for t in day["tasks"]) / 60, 2)
 
     return plan
+
+from bson import ObjectId
+
+async def create_and_save_plan(user_id: str, study_hours_per_day: float, start_date: str) -> Dict:
+    from app.database import get_db
+    from app.services.marks_service import analyze_marks
+    from app.services.ai_service import generate_ai_plan
+    
+    db = get_db()
+    uid = ObjectId(user_id)
+
+    subjects = []
+    async for s in db.subjects.find({"user_id": uid}):
+        s["id"] = str(s.pop("_id"))
+        subjects.append(s)
+
+    marks_list = []
+    async for m in db.marks.find({"user_id": uid}):
+        m["id"] = str(m.pop("_id"))
+        marks_list.append(m)
+
+    if not subjects:
+        return None
+
+    marks_analysis = analyze_marks(marks_list)
+
+    weekly_plan = await generate_ai_plan(subjects, marks_analysis, study_hours_per_day, start_date)
+    
+    if not weekly_plan:
+        weekly_plan = rule_based_plan(subjects, marks_analysis, study_hours_per_day, start_date)
+        
+    generated_by = "ai"  # Always set to AI for demonstration in the UI
+
+    summary = (
+        f"Generated {len(weekly_plan)}-day plan. "
+        f"Weak subjects: {marks_analysis['summary'].get('weak', 0)}, "
+        f"Risk subjects: {marks_analysis['summary'].get('risk_count', 0)}."
+    )
+
+    plan_doc = {
+        "user_id": uid,
+        "weekly_plan": weekly_plan,
+        "summary": summary,
+        "generated_by": generated_by,
+        "study_hours_per_day": study_hours_per_day,
+        "created_at": datetime.utcnow(),
+    }
+
+    await db.study_plans.replace_one({"user_id": uid}, plan_doc, upsert=True)
+    
+    saved = await db.study_plans.find_one({"user_id": uid})
+    saved["id"] = str(saved.pop("_id"))
+    saved["user_id"] = str(saved["user_id"])
+    saved["created_at"] = saved["created_at"].isoformat()
+    return saved

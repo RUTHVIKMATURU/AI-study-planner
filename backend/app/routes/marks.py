@@ -14,8 +14,10 @@ def serialize(doc) -> dict:
     doc["user_id"] = str(doc["user_id"])
     return doc
 
+from fastapi import BackgroundTasks
+
 @router.post("", status_code=201)
-async def add_marks(body: MarksCreate, user=Depends(get_current_user)):
+async def add_marks(body: MarksCreate, background_tasks: BackgroundTasks, user=Depends(get_current_user)):
     db = get_db()
     pct = (body.marks_obtained / body.total_marks) * 100
     doc = {
@@ -33,6 +35,17 @@ async def add_marks(body: MarksCreate, user=Depends(get_current_user)):
         upsert=True,
     )
     inserted = await db.marks.find_one({"user_id": ObjectId(user["id"]), "subject_name": body.subject_name})
+    
+    # Auto-reconstruct schedule if marks are weak
+    performance = inserted.get("performance")
+    if performance == "weak" or inserted.get("is_risk"):
+        plan = await db.study_plans.find_one({"user_id": ObjectId(user["id"])})
+        if plan:
+            from app.services.planner_service import create_and_save_plan
+            from datetime import date
+            study_hours = plan.get("study_hours_per_day", 4.0)
+            background_tasks.add_task(create_and_save_plan, user["id"], study_hours, date.today().isoformat())
+
     return serialize(inserted)
 
 @router.get("")
